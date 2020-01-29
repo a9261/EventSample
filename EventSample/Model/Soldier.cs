@@ -1,6 +1,9 @@
+using System;
+using EventSample.EventMessage;
+
 namespace EventSample.Model
 {
-    public class Soldier
+    public class Soldier : IObserver<CommanderMessage>
     {
         public string Name { get; set; }
 
@@ -13,21 +16,25 @@ namespace EventSample.Model
             CurrentMapPoint = new MapPoint(0, 0);
         }
 
-        public void Join(Commander commander)
-        {
-            Commander = commander;
-            commander.Soldiers.Add(this);
-        }
-
         public MapPoint GetMapPoint()
         {
             return CurrentMapPoint;
         }
 
-        public MapPoint MoveTo(MapPoint mapPoint)
+        public void OnCompleted()
         {
-            CurrentMapPoint = mapPoint;
-            return CurrentMapPoint;
+            throw new NotImplementedException();
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNext(CommanderMessage value)
+        {
+            //When got event
+            CurrentMapPoint = value.MapPoint;
         }
     }
 }

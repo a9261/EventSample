@@ -20,13 +20,28 @@ namespace NUnitTestProject
             var commander = new Commander("Golden");
             var soldierOne = new Soldier("Harry");
             var soldierTwo = new Soldier("Paul");
-            soldierOne.Join(commander);
-            soldierTwo.Join(commander);
+
+            commander.Subscribe(soldierOne);
+            commander.Subscribe(soldierTwo);
 
             commander.SendCmd(new MapPoint(100.3, 20.5));
 
             expectedPoint.ShouldEqual(soldierOne.GetMapPoint());
             expectedPoint.ShouldEqual(soldierTwo.GetMapPoint());
+        }
+
+        [Test]
+        public void CommanderSoldierShoudbeTwo()
+        {
+            var commander = new Commander("Golden");
+            var soldierOne = new Soldier("Harry");
+            var soldierTwo = new Soldier("Paul");
+
+            commander.Subscribe(soldierOne);
+            commander.Subscribe(soldierTwo);
+
+            commander.SendCmd(new MapPoint(100.3, 20.5));
+            Assert.AreEqual(2, commander.Soldiers.Count);
         }
     }
 }
