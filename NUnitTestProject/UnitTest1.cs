@@ -1,3 +1,6 @@
+using EventSample;
+using EventSample.Model;
+using ExpectedObjects;
 using NUnit.Framework;
 
 namespace NUnitTestProject
@@ -10,9 +13,20 @@ namespace NUnitTestProject
         }
 
         [Test]
-        public void Test1()
+        public void CommanderSendCmdToSoldierMove()
         {
-            Assert.Pass();
+            var expectedPoint = new MapPoint(100.3, 20.5).ToExpectedObject();
+
+            var commander = new Commander("Golden");
+            var soldierOne = new Soldier("Harry");
+            var soldierTwo = new Soldier("Paul");
+            soldierOne.Join(commander);
+            soldierTwo.Join(commander);
+
+            commander.SendCmd(new MapPoint(100.3, 20.5));
+
+            expectedPoint.ShouldEqual(soldierOne.GetMapPoint());
+            expectedPoint.ShouldEqual(soldierTwo.GetMapPoint());
         }
     }
 }
