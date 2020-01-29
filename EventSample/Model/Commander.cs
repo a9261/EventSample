@@ -39,7 +39,7 @@ namespace EventSample.Model
             {
                 observers_sodier.Add(observer);
             }
-            return new UnSubscribe<CommanderMessage>(observer);
+            return new UnSubscribe<CommanderMessage>(observers_sodier);
         }
     }
 }

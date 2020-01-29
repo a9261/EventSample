@@ -3,11 +3,13 @@ using EventSample.EventMessage;
 
 namespace EventSample.Model
 {
-    public class Soldier : IObserver<CommanderMessage>
+    public class Soldier : IObserver<CommanderMessage>, IObservable<SoldierMessage>
     {
         public string Name { get; set; }
 
-        public Commander Commander { get; set; }
+        //Only one person as my Commander
+        public IObserver<SoldierMessage> Commander { get; set; }
+
         public MapPoint CurrentMapPoint { get; set; }
 
         public Soldier(string name)
@@ -35,6 +37,18 @@ namespace EventSample.Model
         {
             //When got event
             CurrentMapPoint = value.MapPoint;
+
+            this.Commander.OnNext(new SoldierMessage()
+            {
+                MapPoint = CurrentMapPoint,
+                SoldierName = Name
+            });
+        }
+
+        public IDisposable Subscribe(IObserver<SoldierMessage> observer)
+        {
+            Commander = observer;
+            return new UnSubscribe<SoldierMessage>(observer);
         }
     }
 }
