@@ -35,14 +35,17 @@ namespace EventSample.Model
 
         public void OnNext(CommanderMessage value)
         {
-            //When got event
-            CurrentMapPoint = value.MapPoint;
-
-            this.Commander.OnNext(new SoldierMessage()
+            if (value != null)
             {
-                MapPoint = CurrentMapPoint,
-                SoldierName = Name
-            });
+                //When got event
+                CurrentMapPoint = value.MapPoint;
+                //Report to Commander
+                if (this.Commander != null)
+                    this.Commander.OnNext(new SoldierMessage()
+                    {
+                        Soldier = this
+                    });
+            }
         }
 
         public IDisposable Subscribe(IObserver<SoldierMessage> observer)

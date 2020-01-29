@@ -1,8 +1,9 @@
+using EventSample.Model;
+
 namespace EventSample.EventMessage
 {
     public class SoldierMessage
     {
-        public string SoldierName { get; set; }
-        public MapPoint MapPoint { get; set; }
+        public Soldier Soldier { get; set; }
     }
 }

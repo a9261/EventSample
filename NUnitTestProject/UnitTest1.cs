@@ -24,6 +24,9 @@ namespace NUnitTestProject
             commander.Subscribe(soldierOne);
             commander.Subscribe(soldierTwo);
 
+            soldierOne.Subscribe(commander);
+            soldierTwo.Subscribe(commander);
+
             commander.SendCmd(new MapPoint(100.3, 20.5));
 
             expectedPoint.ShouldEqual(soldierOne.GetMapPoint());
@@ -39,6 +42,9 @@ namespace NUnitTestProject
 
             commander.Subscribe(soldierOne);
             commander.Subscribe(soldierTwo);
+
+            soldierOne.Subscribe(commander);
+            soldierTwo.Subscribe(commander);
 
             commander.SendCmd(new MapPoint(100.3, 20.5));
             Assert.AreEqual(2, commander.Soldiers.Count);

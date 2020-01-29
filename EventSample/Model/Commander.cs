@@ -4,7 +4,7 @@ using EventSample.EventMessage;
 
 namespace EventSample.Model
 {
-    public class Commander : IObservable<CommanderMessage>
+    public class Commander : IObservable<CommanderMessage>, IObserver<SoldierMessage>
     {
         public string Name { get; set; }
 
@@ -28,7 +28,8 @@ namespace EventSample.Model
             {
                 observer.OnNext(new CommanderMessage()
                 {
-                    MapPoint = mapPoint
+                    MapPoint = mapPoint,
+                    Commander = this
                 });
             }
         }
@@ -40,6 +41,38 @@ namespace EventSample.Model
                 observers_sodier.Add(observer);
             }
             return new UnSubscribe<CommanderMessage>(observers_sodier);
+        }
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNext(SoldierMessage value)
+        {
+            //When Commander received Soldier Reported
+            if (value != null)
+            {
+                //New Soldier
+                if (!this.Soldiers.Contains(value.Soldier))
+                {
+                    this.Soldiers.Add(value.Soldier);
+                }
+                //Record Soldier Report Message
+                if (!this.ReportResult.ContainsKey(value.Soldier.Name))
+                {
+                    this.ReportResult.Add(value.Soldier.Name, value.Soldier.CurrentMapPoint);
+                }
+                else
+                {
+                    this.ReportResult[value.Soldier.Name] = value.Soldier.CurrentMapPoint;
+                }
+            }
         }
     }
 }
