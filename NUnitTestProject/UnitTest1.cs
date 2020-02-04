@@ -1,4 +1,6 @@
+using System;
 using EventSample;
+using EventSample.EventMessage;
 using EventSample.Model;
 using ExpectedObjects;
 using NUnit.Framework;
@@ -45,6 +47,23 @@ namespace NUnitTestProject
 
             soldierOne.Subscribe(commander);
             soldierTwo.Subscribe(commander);
+
+            commander.SendCmd(new MapPoint(100.3, 20.5));
+            Assert.AreEqual(2, commander.Soldiers.Count);
+        }
+
+        [Test]
+        public void ChangeManagerTest()
+        {
+            var commander = new Commander("Golden");
+            var soldierOne = new Soldier("Harry");
+            var soldierTwo = new Soldier("Paul");
+
+            var manager = new ChangeManager();
+            manager.RegisterPublisher("commander", commander);
+            manager.RegisterPublisher("solider", soldierTwo);
+
+            manager.RegisterClient("commander", commander);
 
             commander.SendCmd(new MapPoint(100.3, 20.5));
             Assert.AreEqual(2, commander.Soldiers.Count);

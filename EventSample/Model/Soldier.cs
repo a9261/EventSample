@@ -3,6 +3,29 @@ using EventSample.EventMessage;
 
 namespace EventSample.Model
 {
+    public class test : IObserver<CommanderMessage>, IObservable<SoldierMessage>
+    {
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNext(CommanderMessage value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable Subscribe(IObserver<SoldierMessage> observer)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class Soldier : IObserver<CommanderMessage>, IObservable<SoldierMessage>
     {
         public string Name { get; set; }

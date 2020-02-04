@@ -1,25 +1,25 @@
 using System;
 using System.Collections.Generic;
 using EventSample.EventMessage;
+using EventSample.PubSubInterface;
 
 namespace EventSample.Model
 {
-    public class Commander : IObservable<CommanderMessage>, IObserver<SoldierMessage>
+    public class Commander : IPublisher, ISubscriber
     {
         public string Name { get; set; }
 
         public List<Soldier> Soldiers { get; set; }
         public Dictionary<string, MapPoint> ReportResult { get; set; }
 
-        private List<IObserver<CommanderMessage>> observers_sodier;
-        private IDisposable cancellation;
+        private List<ISubscriber> observers_soldier;
 
         public Commander(string name)
         {
             Name = name;
             Soldiers = new List<Soldier>();
             ReportResult = new Dictionary<string, MapPoint>();
-            observers_sodier = new List<IObserver<CommanderMessage>>();
+            observers_soldier = new List<ISubscriber>();
         }
 
         public void SendCmd(MapPoint mapPoint)
@@ -32,25 +32,6 @@ namespace EventSample.Model
                     Commander = this
                 });
             }
-        }
-
-        public IDisposable Subscribe(IObserver<CommanderMessage> observer)
-        {
-            if (!observers_sodier.Contains(observer))
-            {
-                observers_sodier.Add(observer);
-            }
-            return new UnSubscribe<CommanderMessage>(observers_sodier);
-        }
-
-        public void OnCompleted()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
         }
 
         public void OnNext(SoldierMessage value)
@@ -73,6 +54,19 @@ namespace EventSample.Model
                     this.ReportResult[value.Soldier.Name] = value.Soldier.CurrentMapPoint;
                 }
             }
+        }
+
+        public void Subscribe(ISubscriber subscriber)
+        {
+            if (!observers_soldier.Contains(subscriber))
+            {
+                observers_soldier.Add(subscriber);
+            }
+        }
+
+        public void Received(object message)
+        {
+            throw new NotImplementedException();
         }
     }
 }
