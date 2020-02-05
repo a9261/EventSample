@@ -1,39 +1,18 @@
 using System;
 using EventSample.EventMessage;
+using EventSample.PubSubInterface;
 
 namespace EventSample.Model
 {
-    public class test : IObserver<CommanderMessage>, IObservable<SoldierMessage>
-    {
-        public void OnCompleted()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnNext(CommanderMessage value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDisposable Subscribe(IObserver<SoldierMessage> observer)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class Soldier : IObserver<CommanderMessage>, IObservable<SoldierMessage>
+    public class Soldier : IPublisher, ISubscriber
     {
         public string Name { get; set; }
 
         //Only one person as my Commander
-        public IObserver<SoldierMessage> Commander { get; set; }
+        public ISubscriber Commander { get; set; }
 
         public MapPoint CurrentMapPoint { get; set; }
+        private IChangeManager _changeManager;
 
         public Soldier(string name)
         {
@@ -41,40 +20,46 @@ namespace EventSample.Model
             CurrentMapPoint = new MapPoint(0, 0);
         }
 
+        public Soldier(string name, IChangeManager manager)
+        {
+            Name = name;
+            CurrentMapPoint = new MapPoint(0, 0);
+            _changeManager = manager;
+        }
+
         public MapPoint GetMapPoint()
         {
             return CurrentMapPoint;
         }
 
-        public void OnCompleted()
+        public void Subscribe(ISubscriber subscriber)
         {
-            throw new NotImplementedException();
+            Commander = subscriber;
         }
 
-        public void OnError(Exception error)
+        public void OnReceived(object message)
         {
-            throw new NotImplementedException();
-        }
-
-        public void OnNext(CommanderMessage value)
-        {
-            if (value != null)
+            if (message != null && message.GetType() == typeof(CommanderMessage))
             {
+                var value = (CommanderMessage)message;
                 //When got event
                 CurrentMapPoint = value.MapPoint;
                 //Report to Commander
                 if (this.Commander != null)
-                    this.Commander.OnNext(new SoldierMessage()
+                {
+                    this.Commander.OnReceived(new SoldierMessage()
                     {
                         Soldier = this
                     });
+                }
+                if (_changeManager != null)
+                {
+                    _changeManager.OnPodcastMessage("solider", new SoldierMessage()
+                    {
+                        Soldier = this
+                    }, this);
+                }
             }
-        }
-
-        public IDisposable Subscribe(IObserver<SoldierMessage> observer)
-        {
-            Commander = observer;
-            return new UnSubscribe<SoldierMessage>(observer);
         }
     }
 }

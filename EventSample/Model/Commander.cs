@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using EventSample.EventMessage;
 using EventSample.PubSubInterface;
 
@@ -14,6 +15,8 @@ namespace EventSample.Model
 
         private List<ISubscriber> observers_soldier;
 
+        private IChangeManager _changeManager;
+
         public Commander(string name)
         {
             Name = name;
@@ -22,36 +25,34 @@ namespace EventSample.Model
             observers_soldier = new List<ISubscriber>();
         }
 
+        public Commander(string name, IChangeManager manager)
+        {
+            Name = name;
+            Soldiers = new List<Soldier>();
+            ReportResult = new Dictionary<string, MapPoint>();
+            observers_soldier = new List<ISubscriber>();
+            _changeManager = manager;
+        }
+
         public void SendCmd(MapPoint mapPoint)
         {
-            foreach (var observer in observers_sodier)
+            if (_changeManager != null)
             {
-                observer.OnNext(new CommanderMessage()
+                _changeManager.OnPodcastMessage("commander", new CommanderMessage()
                 {
                     MapPoint = mapPoint,
                     Commander = this
-                });
+                }, this);
             }
-        }
-
-        public void OnNext(SoldierMessage value)
-        {
-            //When Commander received Soldier Reported
-            if (value != null)
+            else
             {
-                //New Soldier
-                if (!this.Soldiers.Contains(value.Soldier))
+                foreach (var observer in observers_soldier)
                 {
-                    this.Soldiers.Add(value.Soldier);
-                }
-                //Record Soldier Report Message
-                if (!this.ReportResult.ContainsKey(value.Soldier.Name))
-                {
-                    this.ReportResult.Add(value.Soldier.Name, value.Soldier.CurrentMapPoint);
-                }
-                else
-                {
-                    this.ReportResult[value.Soldier.Name] = value.Soldier.CurrentMapPoint;
+                    observer.OnReceived(new CommanderMessage()
+                    {
+                        MapPoint = mapPoint,
+                        Commander = this
+                    });
                 }
             }
         }
@@ -64,9 +65,30 @@ namespace EventSample.Model
             }
         }
 
-        public void Received(object message)
+        public void OnReceived(object message)
         {
-            throw new NotImplementedException();
+            if (message.GetType() == typeof(SoldierMessage))
+            {
+                var value = (SoldierMessage)message;
+                //When Commander received Soldier Reported
+                if (value != null)
+                {
+                    //New Soldier
+                    if (!this.Soldiers.Contains(value.Soldier))
+                    {
+                        this.Soldiers.Add(value.Soldier);
+                    }
+                    //Record Soldier Report Message
+                    if (!this.ReportResult.ContainsKey(value.Soldier.Name))
+                    {
+                        this.ReportResult.Add(value.Soldier.Name, value.Soldier.CurrentMapPoint);
+                    }
+                    else
+                    {
+                        this.ReportResult[value.Soldier.Name] = value.Soldier.CurrentMapPoint;
+                    }
+                }
+            }
         }
     }
 }

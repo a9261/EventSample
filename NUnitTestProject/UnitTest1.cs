@@ -55,17 +55,22 @@ namespace NUnitTestProject
         [Test]
         public void ChangeManagerTest()
         {
-            var commander = new Commander("Golden");
-            var soldierOne = new Soldier("Harry");
-            var soldierTwo = new Soldier("Paul");
-
+            //Refer : https://github.com/csparpa/gof-design-patterns/blob/master/java/src/tk/csparpa/gofdp/observer/variants/Demo.java
             var manager = new ChangeManager();
-            manager.RegisterPublisher("commander", commander);
+            var commander = new Commander("Golden", manager);
+            var soldierOne = new Soldier("Harry", manager);
+            var soldierTwo = new Soldier("Paul", manager);
+
+            manager.RegisterPublisher("solider", soldierOne);
             manager.RegisterPublisher("solider", soldierTwo);
+            manager.RegisterSubscriber("solider", commander);
 
-            manager.RegisterClient("commander", commander);
+            manager.RegisterPublisher("commander", commander);
+            manager.RegisterSubscriber("commander", soldierOne);
+            manager.RegisterSubscriber("commander", soldierTwo);
 
-            commander.SendCmd(new MapPoint(100.3, 20.5));
+            commander.SendCmd(new MapPoint(100, 100));
+
             Assert.AreEqual(2, commander.Soldiers.Count);
         }
     }
